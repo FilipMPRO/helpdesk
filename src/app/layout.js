@@ -1,7 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-// latin-ext zawiera polskie znaki diakrytyczne.
+// latin-ext dla polskich znakow
 const geistSans = Geist({
   variable: "--font-sans",
   subsets: ["latin", "latin-ext"],
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-full flex flex-col">
         <div className="h-1 shrink-0 bg-primary" />
         {children}
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );

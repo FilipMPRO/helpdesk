@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-// Wspolne dla formularzy (walidacja w przegladarce) i server actions (walidacja na serwerze).
+// Walidacja formularzy logowania i rejestracji
 
 export const loginSchema = z.object({
   email: z.email("Podaj poprawny adres email."),

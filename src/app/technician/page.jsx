@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { Navbar } from "@/components/navbar"
 import { requireRole } from "@/lib/pocketbase"
 
-// Odczyt sesji (cookies) musi byc w <Suspense> - wymog cacheComponents.
+// Suspense wymagany przez cacheComponents
 export default function TechnicianPage() {
   return (
     <Suspense fallback={<p className="p-4 text-muted-foreground">Ładowanie…</p>}>

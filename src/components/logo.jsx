@@ -1,4 +1,4 @@
-// squareClassName pozwala zmienic kolor znaku na tle w kolorze akcentu.
+// squareClassName zmienia kolor kwadratu
 export function Logo({ squareClassName = "bg-primary" }) {
   return (
     <span className="flex items-center gap-2 font-semibold tracking-tight">

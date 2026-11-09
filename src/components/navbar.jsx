@@ -1,24 +1,18 @@
 import { Logo } from "@/components/logo"
-import { Badge } from "@/components/ui/badge"
+import { RoleTag } from "@/components/role-tag"
 import { Button } from "@/components/ui/button"
 import { logout } from "@/lib/actions"
 
-const roleNames = {
-  user: "Użytkownik",
-  technician: "Technik",
-  admin: "Administrator",
-}
-
 export function Navbar({ user }) {
   return (
-    <header className="border-b">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-        <Logo />
+    <header className="bg-primary text-primary-foreground">
+      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-4">
+        <Logo squareClassName="bg-primary-foreground" />
         <div className="flex items-center gap-3">
-          <span className="hidden text-sm sm:inline">{user.email}</span>
-          <Badge variant="secondary">{roleNames[user.role]}</Badge>
+          <span className="hidden text-sm font-medium sm:inline">{user.email}</span>
+          <RoleTag role={user.role} />
           <form action={logout}>
-            <Button type="submit" variant="outline" size="sm">
+            <Button type="submit" variant="outline" size="sm" className="border-transparent">
               Wyloguj
             </Button>
           </form>

@@ -4,24 +4,25 @@ import { redirect } from "next/navigation"
 
 export const AUTH_COOKIE = "pb_auth"
 
-// Nowa instancja na kazde zadanie - authStore trzyma token,
-// wiec wspoldzielony klient mieszalby sesje roznych uzytkownikow.
+// Tworzy nowe polaczenie z PocketBase (osobne dla kazdego zapytania)
 export function createPb() {
   return new PocketBase(process.env.POCKETBASE_URL)
 }
 
-// Rekord zalogowanego uzytkownika albo null.
-// authRefresh() weryfikuje token w PocketBase i zwraca aktualny rekord,
-// wiec rola pochodzi z bazy, nie z ciasteczka.
-export async function getUser() {
+// Laczy z PocketBase jako zalogowany uzytkownik (token z ciasteczka)
+export async function getAuthedPb() {
   const cookieStore = await cookies()
-  const token = cookieStore.get(AUTH_COOKIE)?.value
-  if (!token) {
+  const pb = createPb()
+  pb.authStore.save(cookieStore.get(AUTH_COOKIE)?.value ?? "")
+  return pb
+}
+
+// Sprawdza w PocketBase kto jest zalogowany i zwraca jego konto albo null
+export async function getUser() {
+  const pb = await getAuthedPb()
+  if (!pb.authStore.token) {
     return null
   }
-
-  const pb = createPb()
-  pb.authStore.save(token)
 
   try {
     const result = await pb.collection("users").authRefresh()
@@ -31,7 +32,7 @@ export async function getUser() {
   }
 }
 
-// Brak sesji -> /login, inna rola -> panel wlasnej roli.
+// Wpuszcza tylko podana role a reszte przekierowuje
 export async function requireRole(role) {
   const user = await getUser()
   if (!user) {
