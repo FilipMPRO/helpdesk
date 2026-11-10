@@ -10,7 +10,7 @@ export function Navbar({ user }) {
         <Logo squareClassName="bg-primary-foreground" />
         <div className="flex items-center gap-3">
           <span className="hidden text-sm font-medium sm:inline">{user.email}</span>
-          <RoleTag role={user.role} />
+          <RoleTag role={user.role} compact />
           <form action={logout}>
             <Button type="submit" variant="outline" size="sm" className="border-transparent">
               Wyloguj

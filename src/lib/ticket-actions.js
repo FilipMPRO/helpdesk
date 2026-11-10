@@ -1,0 +1,84 @@
+"use server"
+// Akcje zgloszen wykonywane na serwerze (dostep pilnuja tez reguly API w PocketBase)
+
+import { refresh } from "next/cache"
+import { redirect } from "next/navigation"
+import { getAuthedPb, getUser, requireRole } from "./pocketbase"
+import { photoError, ticketSchema } from "./schemas"
+
+// Odczytuje i sprawdza pola formularza zgloszenia
+function readTicketForm(formData) {
+  const check = ticketSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    room: formData.get("room"),
+    category: formData.get("category"),
+    priority: formData.get("priority"),
+  })
+  if (!check.success) {
+    return { error: "Popraw błędy w formularzu." }
+  }
+
+  const photo = formData.get("photo")
+  const error = photoError(photo)
+  if (error) {
+    return { error }
+  }
+
+  // Zdjecie dolaczane tylko gdy uzytkownik je wybral
+  const hasPhoto = photo instanceof File && photo.size > 0
+  return { data: hasPhoto ? { ...check.data, photo } : check.data }
+}
+
+export async function createTicket(formData) {
+  const user = await requireRole("user")
+  const { data, error } = readTicketForm(formData)
+  if (error) {
+    return { error }
+  }
+
+  const pb = await getAuthedPb()
+  try {
+    // Autor i status ustawiane na serwerze (regula Create i tak to sprawdza)
+    await pb.collection("tickets").create({ ...data, author: user.id, status: "new" })
+  } catch {
+    return { error: "Nie udało się wysłać zgłoszenia. Spróbuj ponownie." }
+  }
+
+  refresh()
+}
+
+export async function updateTicket(ticketId, formData) {
+  await requireRole("user")
+  const { data, error } = readTicketForm(formData)
+  if (error) {
+    return { error }
+  }
+
+  const pb = await getAuthedPb()
+  try {
+    await pb.collection("tickets").update(ticketId, data)
+  } catch {
+    // Regula Update pozwala autorowi edytowac tylko zgloszenie ze statusem Nowe
+    return { error: "Tego zgłoszenia nie można już edytować." }
+  }
+
+  refresh()
+}
+
+// Usuwa zgloszenie (autor gdy status Nowe albo technik)
+export async function deleteTicket(ticketId) {
+  const user = await getUser()
+  if (!user) {
+    redirect("/login")
+  }
+
+  const pb = await getAuthedPb()
+  try {
+    await pb.collection("tickets").delete(ticketId)
+  } catch {
+    return { error: "Nie udało się usunąć zgłoszenia." }
+  }
+
+  refresh()
+}

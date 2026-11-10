@@ -2,7 +2,8 @@ import { cn } from "cn"
 import { roleIcons, roleNames } from "@/lib/roles"
 
 // Znacznik roli w rozmiarze listy wyboru
-export function RoleTag({ role, className }) {
+// compact ukrywa nazwe roli na waskim ekranie (zostaje sama ikona)
+export function RoleTag({ role, compact = false, className }) {
   const Icon = roleIcons[role]
 
   return (
@@ -12,8 +13,8 @@ export function RoleTag({ role, className }) {
         className
       )}
     >
-      <Icon />
-      {roleNames[role]}
+      <Icon aria-hidden="true" />
+      <span className={compact ? "sr-only sm:not-sr-only" : undefined}>{roleNames[role]}</span>
     </span>
   )
 }

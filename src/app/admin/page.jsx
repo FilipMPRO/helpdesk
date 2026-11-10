@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { Navbar } from "@/components/navbar"
+import { formatDate } from "@/lib/dates"
 import { getAuthedPb, requireRole } from "@/lib/pocketbase"
 import { UsersTable } from "./users-table"
 
@@ -10,13 +11,6 @@ export default function AdminPage() {
       <AdminPanel />
     </Suspense>
   )
-}
-
-// Zamienia date z PocketBase na polski format
-function formatDate(value) {
-  return new Date(value.replace(" ", "T")).toLocaleDateString("pl-PL", {
-    timeZone: "Europe/Warsaw",
-  })
 }
 
 async function AdminPanel() {
