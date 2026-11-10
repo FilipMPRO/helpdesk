@@ -131,7 +131,7 @@ export function UsersTable({ users, currentUserId }) {
                         aria-label={`Rola konta ${user.email}`}
                         className={cn(
                           "w-36",
-                          user.role === "technician" && "border-primary bg-primary/15 hover:bg-primary/25"
+                          user.role === "technician" && "border-primary bg-primary/15 hover:bg-primary/25 dark:bg-primary/20 dark:hover:bg-primary/30"
                         )}
                       >
                         <SelectValue />
