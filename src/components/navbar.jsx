@@ -4,18 +4,18 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { logout } from "@/lib/actions"
 
-// Naglowek paneli (w jasnym trybie pomaranczowy a w ciemnym czarny)
+// Naglowek paneli w kolorze akcentu (jasny pomaranczowy, ciemny czerwony)
 export function Navbar({ user }) {
   return (
-    <header className="border-b border-transparent bg-primary text-primary-foreground dark:border-border dark:bg-background dark:text-foreground">
+    <header className="bg-primary text-primary-foreground">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-4">
-        <Logo squareClassName="bg-primary-foreground dark:bg-primary" />
+        <Logo squareClassName="bg-primary-foreground" />
         <div className="flex items-center gap-3">
           <span className="hidden text-sm font-medium sm:inline">{user.email}</span>
           <RoleTag role={user.role} compact />
           <ThemeToggle />
           <form action={logout}>
-            <Button type="submit" variant="outline" size="sm" className="border-transparent dark:border-input">
+            <Button type="submit" variant="outline" size="sm" className="border-transparent dark:border-transparent dark:bg-background dark:hover:bg-muted">
               Wyloguj
             </Button>
           </form>

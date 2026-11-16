@@ -4,3 +4,12 @@ export function formatDate(value) {
     timeZone: "Europe/Warsaw",
   })
 }
+
+// Data z godzina do historii zmian
+export function formatDateTime(value) {
+  return new Date(value.replace(" ", "T")).toLocaleString("pl-PL", {
+    timeZone: "Europe/Warsaw",
+    dateStyle: "short",
+    timeStyle: "short",
+  })
+}

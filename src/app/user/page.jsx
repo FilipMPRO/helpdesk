@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import { Navbar } from "@/components/navbar"
-import { formatDate } from "@/lib/dates"
 import { getAuthedPb, requireRole } from "@/lib/pocketbase"
+import { getEventsByTicket, toTicket } from "@/lib/ticket-data"
 import { TicketForm } from "./ticket-form"
 import { TicketList } from "./ticket-list"
 
@@ -29,25 +29,9 @@ async function UserPanel() {
     expand: "room",
   })
 
-  // Przekazuje do przegladarki tylko potrzebne pola
-  const tickets = ticketRecords.map((ticket) => {
-    // updated w adresie zdjecia odswieza je w przegladarce po edycji
-    const photoUrl = `/api/tickets/${ticket.id}/photo?v=${encodeURIComponent(ticket.updated)}`
-    return {
-      id: ticket.id,
-      title: ticket.title,
-      description: ticket.description,
-      roomId: ticket.room,
-      roomName: ticket.expand?.room?.name ?? "",
-      category: ticket.category,
-      priority: ticket.priority,
-      status: ticket.status,
-      comment: ticket.comment,
-      created: formatDate(ticket.created),
-      photoUrl: ticket.photo ? photoUrl : null,
-      thumbUrl: ticket.photo ? `${photoUrl}&thumb` : null,
-    }
-  })
+  // Dolacza do kazdego zgloszenia jego historie zmian
+  const events = await getEventsByTicket(pb)
+  const tickets = ticketRecords.map((record) => toTicket(record, events[record.id]))
 
   return (
     <>

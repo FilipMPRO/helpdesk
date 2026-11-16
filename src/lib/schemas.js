@@ -46,3 +46,8 @@ export function photoError(file) {
   }
   return null
 }
+
+export const statusChangeSchema = z.object({
+  status: z.enum(["new", "in_progress", "closed"], "Wybierz status."),
+  comment: z.string().trim().max(1000, "Komentarz może mieć maksymalnie 1000 znaków."),
+})

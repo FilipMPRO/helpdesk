@@ -4,7 +4,7 @@
 import { refresh } from "next/cache"
 import { redirect } from "next/navigation"
 import { getAuthedPb, getUser, requireRole } from "./pocketbase"
-import { photoError, ticketSchema } from "./schemas"
+import { photoError, statusChangeSchema, ticketSchema } from "./schemas"
 
 // Odczytuje i sprawdza pola formularza zgloszenia
 function readTicketForm(formData) {
@@ -78,6 +78,38 @@ export async function deleteTicket(ticketId) {
     await pb.collection("tickets").delete(ticketId)
   } catch {
     return { error: "Nie udało się usunąć zgłoszenia." }
+  }
+
+  refresh()
+}
+
+// Zmienia status zgloszenia i zapisuje zmiane w historii ticket_events (tylko technik)
+export async function changeTicketStatus(ticketId, data) {
+  const user = await requireRole("technician")
+  const check = statusChangeSchema.safeParse(data)
+  if (!check.success) {
+    return { error: check.error.issues[0].message }
+  }
+  const { status, comment } = check.data
+
+  const pb = await getAuthedPb()
+  try {
+    const ticket = await pb.collection("tickets").getOne(ticketId)
+    if (ticket.status === status && !comment) {
+      return { error: "Zmień status albo dopisz komentarz." }
+    }
+
+    // Pusty komentarz zostawia poprzedni na zgloszeniu
+    await pb.collection("tickets").update(ticketId, comment ? { status, comment } : { status })
+    await pb.collection("ticket_events").create({
+      ticket: ticketId,
+      changed_by: user.id,
+      from_status: ticket.status,
+      to_status: status,
+      comment,
+    })
+  } catch {
+    return { error: "Nie udało się zapisać zmiany." }
   }
 
   refresh()

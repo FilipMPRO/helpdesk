@@ -5,8 +5,8 @@ import { ThemeToggle } from "@/components/theme-toggle"
 export function AuthLayout({ title, description, footer, children }) {
   return (
     <div className="flex flex-1 flex-col">
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-transparent bg-primary px-4 text-primary-foreground sm:px-10 dark:border-border dark:bg-background dark:text-foreground">
-        <Logo squareClassName="bg-primary-foreground dark:bg-primary" />
+      <header className="flex h-14 shrink-0 items-center justify-between bg-primary px-4 text-primary-foreground sm:px-10">
+        <Logo squareClassName="bg-primary-foreground" />
         <ThemeToggle />
       </header>
 

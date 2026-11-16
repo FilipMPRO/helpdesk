@@ -5,6 +5,7 @@ import { ImageIcon, Loader2Icon, PencilIcon, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 import { PriorityLabel } from "@/components/priority-label"
 import { StatusBadge } from "@/components/status-badge"
+import { TicketHistory } from "@/components/ticket-history"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -144,6 +145,8 @@ export function TicketList({ tickets, rooms }) {
                         Technik zajął się już tym zgłoszeniem, więc nie można go zmienić ani usunąć.
                       </p>
                     )}
+
+                    <TicketHistory ticket={selected} />
                   </>
                 )}
               </div>
