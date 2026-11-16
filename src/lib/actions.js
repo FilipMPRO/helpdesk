@@ -1,13 +1,13 @@
 "use server"
-// Server actions: wykonywane wylacznie na serwerze, wywolywane z formularzy jak zwykle funkcje.
+// Akcje wykonywane na serwerze
 
+import { refresh } from "next/cache"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
-import { AUTH_COOKIE, createPb } from "./pocketbase"
+import { AUTH_COOKIE, createPb, getAuthedPb, requireRole } from "./pocketbase"
 import { loginSchema, registerSchema } from "./schemas"
 
-// httpOnly - token niedostepny dla JS w przegladarce (ochrona przed XSS).
-// maxAge zgodny z domyslna waznoscia tokenu PocketBase (7 dni).
+// Zapisuje token w ciasteczku niewidocznym dla JavaScriptu (wazne 7 dni jak token)
 async function saveToken(token) {
   const cookieStore = await cookies()
   cookieStore.set(AUTH_COOKIE, token, {
@@ -19,7 +19,7 @@ async function saveToken(token) {
 }
 
 export async function login(data) {
-  // Walidacja powtorzona po stronie serwera - dane z przegladarki sa niezaufane.
+  // Sprawdza dane drugi raz na serwerze
   const check = loginSchema.safeParse(data)
   if (!check.success) {
     return { error: "Popraw błędy w formularzu." }
@@ -29,7 +29,7 @@ export async function login(data) {
   try {
     await pb.collection("users").authWithPassword(check.data.email, check.data.password)
   } catch (error) {
-    // Jeden komunikat dla zlego emaila i hasla - nie ujawniamy, ktore konta istnieja.
+    // Jeden komunikat zeby nie zdradzac czy konto istnieje
     if (error.status === 400) {
       return { error: "Nieprawidłowy email lub hasło." }
     }
@@ -37,7 +37,7 @@ export async function login(data) {
   }
 
   await saveToken(pb.authStore.token)
-  // redirect() rzuca wyjatek, wiec nie moze byc w try/catch.
+  // redirect musi byc poza try/catch
   redirect("/" + pb.authStore.record.role)
 }
 
@@ -49,8 +49,8 @@ export async function register(data) {
 
   const pb = createPb()
   try {
-    // Rola nadawana na serwerze. Regula Create w PocketBase odrzuca kazda inna niz "user".
-    await pb.collection("users").create({ ...check.data, role: "user" })
+    // Zawsze rola user i widoczny email dla admina i technika
+    await pb.collection("users").create({ ...check.data, role: "user", emailVisibility: true })
     await pb.collection("users").authWithPassword(check.data.email, check.data.password)
   } catch (error) {
     if (error.response?.data?.email) {
@@ -67,4 +67,21 @@ export async function logout() {
   const cookieStore = await cookies()
   cookieStore.delete(AUTH_COOKIE)
   redirect("/login")
+}
+
+// Zmienia role uzytkownik / technik (tylko admin)
+export async function changeRole(userId, role) {
+  await requireRole("admin")
+  if (role !== "user" && role !== "technician") {
+    return { error: "Nieprawidłowa rola." }
+  }
+
+  const pb = await getAuthedPb()
+  try {
+    await pb.collection("users").update(userId, { role })
+  } catch {
+    return { error: "Nie udało się zmienić roli." }
+  }
+
+  refresh()
 }

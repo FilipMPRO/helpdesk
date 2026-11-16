@@ -1,7 +1,7 @@
 import { CircleAlertIcon } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-// Blad zwrocony przez server action. Bez komunikatu nic nie renderuje.
+// Wyswietla blad zwrocony przez akcje
 export function FormAlert({ message }) {
   if (!message) {
     return null

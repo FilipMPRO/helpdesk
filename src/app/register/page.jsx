@@ -23,7 +23,7 @@ export default function RegisterPage() {
 
   async function onSubmit(data) {
     setServerError("")
-    // Sukces konczy sie redirectem w akcji - wynik wraca tylko przy bledzie.
+    // Przy sukcesie akcja sama przekierowuje
     const result = await registerUser(data)
     if (result?.error) {
       setServerError(result.error)

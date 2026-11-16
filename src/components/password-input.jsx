@@ -5,7 +5,7 @@ import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-// Input hasla z przelacznikiem widocznosci.
+// Pole hasla z przyciskiem pokaz / ukryj
 export function PasswordInput(props) {
   const [visible, setVisible] = useState(false)
 
@@ -16,7 +16,7 @@ export function PasswordInput(props) {
         type="button"
         variant="ghost"
         size="icon-xs"
-        // Pozycja bez translate - Button uzywa translate-y dla efektu klikniecia (:active).
+        // Bez translate bo Button uzywa go przy kliknieciu
         className="absolute top-1 right-1 text-muted-foreground"
         onClick={() => setVisible(!visible)}
         aria-label={visible ? "Ukryj hasło" : "Pokaż hasło"}
